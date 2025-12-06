@@ -342,10 +342,12 @@ USE_TZ = True
 
 # ? Static & Media Files Configuration
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # ? Stripe API Keys (from .env)
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
@@ -627,18 +629,178 @@ FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqa
 ========================================
 FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\static\css\style.css
 ========================================
+/* === GLOBAL STYLES === */
 body {
-  font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto,
     sans-serif;
+  background-color: #f8f9fa;
+  color: #212529;
+  margin: 0;
+  padding: 0;
 }
+
+.navbar {
+  transition: all 0.3s ease;
+}
+
 .navbar-brand {
-  color: #00a8a8 !important;
+  color: #00bfa6 !important; /* ? matches turquoise logo */
+  letter-spacing: 0.5px;
+}
+
+.nav-link {
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  color: #00bfa6 !important;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: #00bfa6; /* ? turquoise button */
+  border-color: #00bfa6;
+}
+
+.btn-primary:hover {
+  background-color: #009e8f;
+  border-color: #009e8f;
+}
+
+.btn-outline-primary {
+  color: #00bfa6;
+  border-color: #00bfa6;
+}
+
+.btn-outline-primary:hover {
+  background-color: #00bfa6;
+  color: #fff;
+}
+
+/* === HERO SECTION (Turquoise Brand Theme) === */
+.hero-section {
+  position: relative;
+  background: linear-gradient(180deg, #00c4b3 0%, #009e8f 100%);
+  min-height: 80vh;
+  color: #fff;
+  text-align: center;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-section .overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2); /* soft tint for readability */
+}
+
+.hero-section h1,
+.hero-section p {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-section h1 {
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.hero-section p {
+  color: #e6fffb;
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.hero-section .btn-light {
+  background-color: #fff;
+  color: #00bfa6;
+  border-radius: 50px;
+  transition: all 0.3s ease;
   font-weight: 600;
 }
-.btn-primary,
-.btn-outline-primary {
-  background-color: #00a8a8;
-  border-color: #00a8a8;
+
+.hero-section .btn-light:hover {
+  transform: scale(1.05);
+  background-color: #f8f9fa;
+  color: #009e8f;
+}
+
+/* === FEATURE CARDS === */
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.card h5 {
+  margin-bottom: 0.5rem;
+  color: #212529;
+}
+
+.card p {
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+/* === FOOTER === */
+footer {
+  background-color: #fff;
+  color: #6c757d;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem 0;
+  border-top: 1px solid #e9ecef;
+}
+
+/* === HERO ANIMATIONS === */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-section h1 {
+  animation: fadeInUp 1s ease forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.hero-section p {
+  animation: fadeInUp 1s ease forwards;
+  animation-delay: 0.5s;
+  opacity: 0;
+}
+
+.hero-section .btn-light {
+  animation: fadeInUp 1s ease forwards;
+  animation-delay: 0.8s;
+  opacity: 0;
+}
+
+/* === SCROLL REVEAL EFFECTS === */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 
@@ -652,26 +814,121 @@ FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqa
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %}MahirLite{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <title>{% block title %}MahirLite{% endblock title %}</title>
+
+    <!-- Bootstrap -->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+
+    <script>
+      const reveals = document.querySelectorAll(".reveal");
+
+      function revealOnScroll() {
+        const triggerBottom = window.innerHeight * 0.85;
+        reveals.forEach((el) => {
+          const boxTop = el.getBoundingClientRect().top;
+          if (boxTop < triggerBottom) {
+            el.classList.add("active");
+          } else {
+            el.classList.remove("active");
+          }
+        });
+      }
+
+      window.addEventListener("scroll", revealOnScroll);
+      window.addEventListener("load", revealOnScroll);
+    </script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
   </head>
-  <body class="bg-light">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+
+  <body class="bg-light d-flex flex-column min-vh-100">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
       <div class="container">
-        <a class="navbar-brand" href="/">MahirLite</a>
-        <div>
-          <a href="/services/" class="btn btn-outline-light btn-sm">Services</a>
-          <a href="/bookings/" class="btn btn-outline-light btn-sm">Bookings</a>
-          <a href="/users/login/" class="btn btn-outline-light btn-sm">Login</a>
+        <a class="navbar-brand fw-bold text-primary fs-4" href="/">MahirLite</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div
+          class="collapse navbar-collapse justify-content-end"
+          id="navbarNav"
+        >
+          <ul class="navbar-nav align-items-center">
+            <li class="nav-item">
+              <a class="nav-link text-dark" href="/">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-dark" href="/services/">Services</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-dark" href="/bookings/">Bookings</a>
+            </li>
+
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a
+                href="{% url 'profile' %}"
+                class="btn btn-outline-primary btn-sm me-2"
+                >Profile</a
+              >
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'logout' %}" class="btn btn-primary btn-sm"
+                >Logout</a
+              >
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a
+                href="{% url 'login' %}"
+                class="btn btn-outline-primary btn-sm me-2"
+                >Login</a
+              >
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'register' %}" class="btn btn-primary btn-sm"
+                >Sign Up</a
+              >
+            </li>
+            {% endif %}
+          </ul>
         </div>
       </div>
     </nav>
 
-    <div class="container">{% block content %} {% endblock %}</div>
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+      {% if messages %} {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} text-center shadow-sm">
+        {{ message }}
+      </div>
+      {% endfor %} {% endif %}
+    </div>
+
+    <!-- Page Content -->
+    <main class="flex-fill">{% block content %}{% endblock content %}</main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-top py-4 mt-auto">
+      <div class="container text-center text-muted small">
+        © 2025 MahirLite · All rights reserved
+      </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   </body>
@@ -682,13 +939,67 @@ FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqa
 ========================================
 FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\templates\home.html
 ========================================
-{% extends 'base.html' %} {% block content %}
-<div class="text-center py-5">
-  <h1 class="mb-3">Welcome to MahirLite</h1>
-  <p class="lead">Book trusted home services instantly.</p>
-  <a href="/services/" class="btn btn-primary">Explore Services</a>
-</div>
-{% endblock %}
+{% extends 'base.html' %} {% block title %}Home | MahirLite{% endblock title %}
+{% block content %}
+
+<!-- Hero Section -->
+<section
+  class="hero-section d-flex align-items-center justify-content-center text-center"
+>
+  <div class="overlay"></div>
+  <div class="container position-relative py-5">
+    <h1 class="display-3 fw-bold mb-3 text-white">
+      Book Trusted Services Instantly
+    </h1>
+    <p class="lead mb-4 text-light">
+      Fast, secure and verified home services — anytime, anywhere.
+    </p>
+    <a
+      href="/services/"
+      class="btn btn-light btn-lg px-5 py-3 fw-semibold shadow-sm"
+    >
+      Get Started
+    </a>
+  </div>
+</section>
+
+<!-- Why Choose MahirLite Section -->
+<section class="py-5 bg-white">
+  <div class="container text-center">
+    <h2 class="fw-bold mb-5 text-dark">Why Choose MahirLite?</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card feature-card h-100 p-4 border-0">
+          <div class="icon mb-3">
+            <i class="bi bi-calendar-check-fill fs-1 text-primary"></i>
+          </div>
+          <h5 class="fw-bold">Fast Booking</h5>
+          <p>Easily schedule appointments with our user-friendly interface.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card feature-card h-100 p-4 border-0">
+          <div class="icon mb-3">
+            <i class="bi bi-shield-check fs-1 text-success"></i>
+          </div>
+          <h5 class="fw-bold">Verified Providers</h5>
+          <p>Every provider is thoroughly vetted for reliability and skill.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card feature-card h-100 p-4 border-0">
+          <div class="icon mb-3">
+            <i class="bi bi-lock-fill fs-1 text-warning"></i>
+          </div>
+          <h5 class="fw-bold">Secure Payments</h5>
+          <p>All transactions are encrypted for your complete peace of mind.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock content %}
 
 
 
@@ -696,8 +1007,9 @@ FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqa
 FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\admin.py
 ========================================
 from django.contrib import admin
+from .models import Profile
 
-# Register your models here.
+admin.site.register(Profile)
 
 
 
@@ -711,18 +1023,33 @@ class UsersConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'users'
 
+    def ready(self):
+        import users.signals
+
 
 
 ========================================
 FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\forms.py
 ========================================
 from django import forms
-from .models import Service
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+from .models import Profile
 
-class ServiceForm(forms.ModelForm):
+# --- User Registration Form ---
+class UserRegisterForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+
     class Meta:
-        model = Service
-        fields = ['name', 'category', 'description', 'price', 'image']
+        model = User
+        fields = ['username', 'email', 'password1', 'password2']
+
+
+# --- Profile Update Form ---
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['bio', 'profile_image', 'phone', 'address', 'city', 'country']
 
 
 
@@ -732,6 +1059,40 @@ FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqa
 from django.db import models
 
 # Create your models here.
+from django.db import models
+from django.contrib.auth.models import User
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    bio = models.TextField(blank=True, null=True)
+    profile_image = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    phone = models.CharField(max_length=15, blank=True)
+    address = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=100, blank=True)
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user.username
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\signals.py
+========================================
+from django.db.models.signals import post_save
+from django.contrib.auth.models import User
+from django.dispatch import receiver
+from .models import Profile
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
 
 
 
@@ -751,9 +1112,11 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('signup/', views.signup_view, name='signup'),
+    path('register/', views.register, name='register'),  # ? New route added
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('profile/', views.profile, name='profile'),  # ? Placeholder for next step
+    path('signup/', views.signup_view, name='signup'),
 ]
 
 
@@ -762,8 +1125,25 @@ urlpatterns = [
 FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\views.py
 ========================================
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.decorators import login_required
+from .forms import UserRegisterForm, ProfileUpdateForm
+
+
+# ?? Step 3 — Registration View
+def register(request):
+    if request.method == 'POST':
+        form = UserRegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Account created successfully! You can now log in.')
+            return redirect('login')
+    else:
+        form = UserRegisterForm()
+    return render(request, 'users/register.html', {'form': form})
+
 
 def signup_view(request):
     if request.method == 'POST':
@@ -774,6 +1154,7 @@ def signup_view(request):
     else:
         form = UserCreationForm()
     return render(request, 'users/signup.html', {'form': form})
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -786,9 +1167,24 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, 'users/login.html', {'form': form})
 
+
 def logout_view(request):
     logout(request)
     return redirect('home')
+
+
+# ?? Step 4 — Profile View (Protected)
+@login_required
+def profile(request):
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('profile')
+    else:
+        form = ProfileUpdateForm(instance=request.user.profile)
+    return render(request, 'users/profile.html', {'form': form})
 
 
 
@@ -802,11 +1198,83 @@ FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqa
 FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\templates\users\login.html
 ========================================
 {% extends 'base.html' %} {% block content %}
-<h2>Login</h2>
-<form method="post">
-  {% csrf_token %} {{ form.as_p }}
-  <button class="btn btn-primary" type="submit">Login</button>
-</form>
+<div class="container mt-5">
+  <div class="col-md-5 mx-auto card p-4 shadow-sm">
+    <h3 class="text-center mb-3">Login</h3>
+
+    {% if messages %} {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %} {% endif %}
+
+    <form method="post">
+      {% csrf_token %} {{ form.as_p }}
+      <button class="btn btn-primary w-100 mt-2" type="submit">Login</button>
+    </form>
+
+    <p class="text-center mt-3 mb-0">
+      Don't have an account?
+      <a href="{% url 'register' %}">Register here</a>
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\templates\users\profile.html
+========================================
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-4 text-center">
+      {% if user.profile.profile_image %}
+      <img
+        src="{{ user.profile.profile_image.url }}"
+        class="img-thumbnail mb-3"
+        width="180"
+      />
+      {% else %}
+      <img
+        src="/static/img/default.jpg"
+        class="img-thumbnail mb-3"
+        width="180"
+      />
+      {% endif %}
+      <h4>{{ user.username }}</h4>
+      <p class="text-muted">{{ user.email }}</p>
+    </div>
+
+    <div class="col-md-8">
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %} {{ form.as_p }}
+        <button class="btn btn-success mt-2">Update Profile</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\templates\users\register.html
+========================================
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-5">
+  <div class="col-md-6 mx-auto card p-4 shadow-sm">
+    <h3 class="text-center mb-3">Create Account</h3>
+
+    {% if messages %} {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %} {% endif %}
+
+    <form method="POST">
+      {% csrf_token %} {{ form.as_p }}
+      <button type="submit" class="btn btn-primary w-100">Register</button>
+    </form>
+  </div>
+</div>
 {% endblock %}
 
 

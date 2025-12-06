@@ -1,13 +1,223 @@
+/* === GLOBAL STYLES === */
 body {
-  font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto,
     sans-serif;
+  background-color: #f8f9fa;
+  color: #212529;
+  margin: 0;
+  padding: 0;
 }
+
+.navbar {
+  transition: all 0.3s ease;
+}
+
 .navbar-brand {
-  color: #00a8a8 !important;
+  color: #00bfa6 !important; /* ✅ matches turquoise logo */
+  letter-spacing: 0.5px;
+}
+
+.nav-link {
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  color: #00bfa6 !important;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: #00bfa6; /* ✅ turquoise button */
+  border-color: #00bfa6;
+}
+
+.btn-primary:hover {
+  background-color: #009e8f;
+  border-color: #009e8f;
+}
+
+.btn-outline-primary {
+  color: #00bfa6;
+  border-color: #00bfa6;
+}
+
+.btn-outline-primary:hover {
+  background-color: #00bfa6;
+  color: #fff;
+}
+
+/* === HERO SECTION (Turquoise Brand Theme) === */
+.hero-section {
+  position: relative;
+  background: linear-gradient(180deg, #00c4b3 0%, #009e8f 100%);
+  min-height: 80vh;
+  color: #fff;
+  text-align: center;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-section .overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2); /* soft tint for readability */
+}
+
+.hero-section h1,
+.hero-section p {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-section h1 {
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.hero-section p {
+  color: #e6fffb;
+  font-size: 1.1rem;
+  font-weight: 400;
+}
+
+.hero-section .btn-light {
+  background-color: #fff;
+  color: #00bfa6;
+  border-radius: 50px;
+  transition: all 0.3s ease;
   font-weight: 600;
 }
-.btn-primary,
-.btn-outline-primary {
-  background-color: #00a8a8;
-  border-color: #00a8a8;
+
+.hero-section .btn-light:hover {
+  transform: scale(1.05);
+  background-color: #f8f9fa;
+  color: #009e8f;
+}
+
+/* === FEATURE CARDS === */
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.card h5 {
+  margin-bottom: 0.5rem;
+  color: #212529;
+}
+
+.card p {
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+/* === FOOTER === */
+footer {
+  background-color: #fff;
+  color: #6c757d;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1rem 0;
+  border-top: 1px solid #e9ecef;
+}
+
+/* === HERO ANIMATIONS === */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-section h1 {
+  animation: fadeInUp 1s ease forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.hero-section p {
+  animation: fadeInUp 1s ease forwards;
+  animation-delay: 0.5s;
+  opacity: 0;
+}
+
+.hero-section .btn-light {
+  animation: fadeInUp 1s ease forwards;
+  animation-delay: 0.8s;
+  opacity: 0;
+}
+
+/* === SCROLL REVEAL EFFECTS === */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.service-card {
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  background: #fff;
+}
+.service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+}
+.service-card .service-img {
+  height: 220px;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.service-card:hover .service-img {
+  transform: scale(1.05);
+}
+.service-card .btn {
+  background-color: #00bfa6;
+  border: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+.service-card .btn:hover {
+  background-color: #009e8f;
+  transform: scale(1.05);
+}
+
+.service-detail-img {
+  height: 350px;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.service-detail-img:hover {
+  transform: scale(1.03);
+}
+.btn-primary {
+  background-color: #00bfa6;
+  border: none;
+  transition: all 0.3s ease;
+}
+.btn-primary:hover {
+  background-color: #009e8f;
+  transform: translateY(-2px);
+}
+.bg-success-subtle {
+  background-color: #d8f3e9 !important;
 }

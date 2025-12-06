@@ -100,10 +100,12 @@ USE_TZ = True
 
 # ✅ Static & Media Files Configuration
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 # ✅ Stripe API Keys (from .env)
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")

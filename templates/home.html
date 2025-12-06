@@ -1,7 +1,61 @@
-{% extends 'base.html' %} {% block content %}
-<div class="text-center py-5">
-  <h1 class="mb-3">Welcome to MahirLite</h1>
-  <p class="lead">Book trusted home services instantly.</p>
-  <a href="/services/" class="btn btn-primary">Explore Services</a>
-</div>
-{% endblock %}
+{% extends 'base.html' %} {% block title %}Home | MahirLite{% endblock title %}
+{% block content %}
+
+<!-- Hero Section -->
+<section
+  class="hero-section d-flex align-items-center justify-content-center text-center"
+>
+  <div class="overlay"></div>
+  <div class="container position-relative py-5">
+    <h1 class="display-3 fw-bold mb-3 text-white">
+      Book Trusted Services Instantly
+    </h1>
+    <p class="lead mb-4 text-light">
+      Fast, secure and verified home services — anytime, anywhere.
+    </p>
+    <a
+      href="/services/"
+      class="btn btn-light btn-lg px-5 py-3 fw-semibold shadow-sm"
+    >
+      Get Started
+    </a>
+  </div>
+</section>
+
+<!-- Why Choose MahirLite Section -->
+<section class="py-5 bg-white">
+  <div class="container text-center">
+    <h2 class="fw-bold mb-5 text-dark">Why Choose MahirLite?</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card feature-card h-100 p-4 border-0">
+          <div class="icon mb-3">
+            <i class="bi bi-calendar-check-fill fs-1 text-primary"></i>
+          </div>
+          <h5 class="fw-bold">Fast Booking</h5>
+          <p>Easily schedule appointments with our user-friendly interface.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card feature-card h-100 p-4 border-0">
+          <div class="icon mb-3">
+            <i class="bi bi-shield-check fs-1 text-success"></i>
+          </div>
+          <h5 class="fw-bold">Verified Providers</h5>
+          <p>Every provider is thoroughly vetted for reliability and skill.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card feature-card h-100 p-4 border-0">
+          <div class="icon mb-3">
+            <i class="bi bi-lock-fill fs-1 text-warning"></i>
+          </div>
+          <h5 class="fw-bold">Secure Payments</h5>
+          <p>All transactions are encrypted for your complete peace of mind.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock content %}

@@ -1,32 +1,66 @@
-{% extends 'base.html' %} {% block content %}
-<h2>Services</h2>
-<div class="row">
-  {% for s in services %}
-  <div class="col-md-4 mb-3">
-    <div class="card h-100">
-      {% if s.image %}
-      <img src="{{ s.image.url }}" class="card-img-top" alt="{{ s.name }}" />
-      {% endif %}
-      <div class="card-body">
-        <h5 class="card-title">{{ s.name }}</h5>
-        <p class="card-text">{{ s.description|truncatechars:100 }}</p>
-        <p class="fw-bold">${{ s.price }}</p>
-        <a
-          href="{% url 'service_detail' s.id %}"
-          class="btn btn-outline-primary"
-          >View</a
+{% extends "base.html" %} {% load static %} {% block title %}Services |
+MahirLite{% endblock title %} {% block content %}
+
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold text-dark mb-3">Explore Our Services</h2>
+      <p class="text-muted">
+        Choose from a wide range of trusted home and professional services near
+        you.
+      </p>
+    </div>
+
+    <div class="row g-4">
+      {% for s in services %}
+      <div class="col-md-4">
+        <div class="card border-0 h-100 shadow-sm service-card">
+          {% if s.image %}
+          <img
+            src="{{ s.image.url }}"
+            class="card-img-top service-img"
+            alt="{{ s.name }}"
+          />
+          {% else %}
+          <img
+            src="{% static 'img/default-service.jpg' %}"
+            class="card-img-top service-img"
+            alt="Default service"
+          />
+          {% endif %}
+          <div class="card-body text-center">
+            <h5 class="fw-bold mb-2 text-dark">{{ s.name }}</h5>
+            <p class="text-muted small mb-3">
+              {{ s.description|truncatechars:100 }}
+            </p>
+            <p class="fw-semibold text-primary fs-5 mb-3">${{ s.price }}</p>
+            <a
+              href="{% url 'service_detail' s.id %}"
+              class="btn btn-primary px-4 py-2 rounded-pill"
+              >View Details</a
+            >
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-5">
+        <p class="text-muted mb-3">No services available yet.</p>
+        <a href="{% url 'service_create' %}" class="btn btn-success"
+          >Add New Service</a
         >
       </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-5">
+      <a
+        href="{% url 'service_create' %}"
+        class="btn btn-outline-primary rounded-pill px-4 py-2"
+      >
+        <i class="bi bi-plus-circle me-1"></i> Add Service
+      </a>
     </div>
   </div>
-  {% empty %}
-  <div class="text-center">
-    <p>No services yet.</p>
-  </div>
-  {% endfor %}
-</div>
+</section>
 
-<a href="{% url 'service_create' %}" class="btn btn-success mt-3"
-  >Add Service</a
->
-{% endblock %}
+{% endblock content %}
