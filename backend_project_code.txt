@@ -88,6 +88,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    path('', views.my_bookings, name='bookings_home'),
     path('<int:service_id>/book/', views.create_booking, name='create_booking'),
     path('my-bookings/', views.my_bookings, name='my_bookings'),
     path('payment-success/', views.payment_success, name='payment_success'),
@@ -355,6 +356,12 @@ STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# ? Step 1 — Redirects for login and logout
+LOGIN_URL = '/users/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
+
 
 ========================================
 FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\maherlite\urls.py
@@ -588,8 +595,9 @@ FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqa
   {% for s in services %}
   <div class="col-md-4 mb-3">
     <div class="card h-100">
-      {% if s.image %}<img src="{{ s.image.url }}" class="card-img-top" />{%
-      endif %}
+      {% if s.image %}
+      <img src="{{ s.image.url }}" class="card-img-top" alt="{{ s.name }}" />
+      {% endif %}
       <div class="card-body">
         <h5 class="card-title">{{ s.name }}</h5>
         <p class="card-text">{{ s.description|truncatechars:100 }}</p>
@@ -603,10 +611,15 @@ FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqa
     </div>
   </div>
   {% empty %}
-  <p>No services yet.</p>
+  <div class="text-center">
+    <p>No services yet.</p>
+  </div>
   {% endfor %}
 </div>
-<a href="{% url 'service_create' %}" class="btn btn-success">Add Service</a>
+
+<a href="{% url 'service_create' %}" class="btn btn-success mt-3"
+  >Add Service</a
+>
 {% endblock %}
 
 
