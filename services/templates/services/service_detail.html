@@ -1,0 +1,25 @@
+{% extends 'base.html' %} {% block content %}
+<h2>{{ service.name }}</h2>
+<p class="text-muted">{{ service.category }}</p>
+{% if service.image %}<img
+  src="{{ service.image.url }}"
+  class="img-fluid mb-3"
+/>{% endif %}
+<p>{{ service.description }}</p>
+<p class="fw-bold">Price: ${{ service.price }}</p>
+
+<form action="/bookings/{{ service.id }}/book/" method="post" class="mt-3">
+  {% csrf_token %}
+  <div class="row g-2">
+    <div class="col-md-4">
+      <label class="form-label">Date</label>
+      <input type="date" name="date" class="form-control" required />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Time</label>
+      <input type="time" name="time" class="form-control" required />
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary mt-3">Book & Pay</button>
+</form>
+{% endblock %}

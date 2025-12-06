@@ -1,0 +1,11 @@
+{% extends 'base.html' %} {% block content %}
+<h2>Payment Successful</h2>
+<p>Your booking is confirmed.</p>
+<p><strong>Service:</strong> {{ booking.service.name }}</p>
+<p>
+  <strong>Date:</strong> {{ booking.date }} | <strong>Time:</strong> {{
+  booking.time }}
+</p>
+<p><strong>Status:</strong> {{ booking.get_status_display }}</p>
+<a class="btn btn-primary" href="{% url 'my_bookings' %}">My Bookings</a>
+{% endblock %}

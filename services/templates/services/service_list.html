@@ -1,0 +1,32 @@
+{% extends 'base.html' %} {% block content %}
+<h2>Services</h2>
+<div class="row">
+  {% for s in services %}
+  <div class="col-md-4 mb-3">
+    <div class="card h-100">
+      {% if s.image %}
+      <img src="{{ s.image.url }}" class="card-img-top" alt="{{ s.name }}" />
+      {% endif %}
+      <div class="card-body">
+        <h5 class="card-title">{{ s.name }}</h5>
+        <p class="card-text">{{ s.description|truncatechars:100 }}</p>
+        <p class="fw-bold">${{ s.price }}</p>
+        <a
+          href="{% url 'service_detail' s.id %}"
+          class="btn btn-outline-primary"
+          >View</a
+        >
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="text-center">
+    <p>No services yet.</p>
+  </div>
+  {% endfor %}
+</div>
+
+<a href="{% url 'service_create' %}" class="btn btn-success mt-3"
+  >Add Service</a
+>
+{% endblock %}

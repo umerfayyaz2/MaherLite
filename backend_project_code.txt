@@ -1,0 +1,813 @@
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\manage.py
+========================================
+#!/usr/bin/env python
+"""Django's command-line utility for administrative tasks."""
+import os
+import sys
+
+
+def main():
+    """Run administrative tasks."""
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'maherlite.settings')
+    try:
+        from django.core.management import execute_from_command_line
+    except ImportError as exc:
+        raise ImportError(
+            "Couldn't import Django. Are you sure it's installed and "
+            "available on your PYTHONPATH environment variable? Did you "
+            "forget to activate a virtual environment?"
+        ) from exc
+    execute_from_command_line(sys.argv)
+
+
+if __name__ == '__main__':
+    main()
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\bookings\admin.py
+========================================
+from django.contrib import admin
+from .models import Booking
+admin.site.register(Booking)
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\bookings\apps.py
+========================================
+from django.apps import AppConfig
+
+
+class BookingsConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'bookings'
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\bookings\models.py
+========================================
+from django.db import models
+from django.contrib.auth.models import User
+from services.models import Service
+
+class Booking(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    date = models.DateField()
+    time = models.TimeField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    is_paid = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.service.name} - {self.user.username}"
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\bookings\tests.py
+========================================
+from django.test import TestCase
+
+# Create your tests here.
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\bookings\urls.py
+========================================
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('<int:service_id>/book/', views.create_booking, name='create_booking'),
+    path('my-bookings/', views.my_bookings, name='my_bookings'),
+    path('payment-success/', views.payment_success, name='payment_success'),
+]
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\bookings\views.py
+========================================
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from services.models import Service
+from .models import Booking
+import stripe
+from django.conf import settings
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+@login_required
+def create_booking(request, service_id):
+    service = get_object_or_404(Service, id=service_id)
+    if request.method == 'POST':
+        date = request.POST.get('date')
+        time = request.POST.get('time')
+        booking = Booking.objects.create(user=request.user, service=service, date=date, time=time)
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {'name': service.name},
+                    'unit_amount': int(service.price * 100),
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=request.build_absolute_uri('/bookings/payment-success/') + '?booking_id=' + str(booking.id),
+            cancel_url=request.build_absolute_uri('/services/'),
+        )
+        return redirect(checkout_session.url)
+    return render(request, 'bookings/booking_form.html', {'service': service})
+
+@login_required
+def payment_success(request):
+    booking_id = request.GET.get('booking_id')
+    booking = Booking.objects.get(id=booking_id)
+    booking.is_paid = True
+    booking.save()
+    return render(request, 'bookings/payment_success.html', {'booking': booking})
+
+@login_required
+def my_bookings(request):
+    bookings = Booking.objects.filter(user=request.user)
+    return render(request, 'bookings/booking_list.html', {'bookings': bookings})
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\bookings\__init__.py
+========================================
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\bookings\templates\bookings\booking_form.html
+========================================
+{% extends 'base.html' %} {% block content %}
+<h2>Book: {{ service.name }}</h2>
+<!-- (Not used directly since we submit from detail page; kept for clarity) -->
+{% endblock %}
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\bookings\templates\bookings\booking_list.html
+========================================
+{% extends 'base.html' %} {% block content %}
+<h2>My Bookings</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Service</th>
+      <th>Date</th>
+      <th>Time</th>
+      <th>Status</th>
+      <th>Paid</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for b in bookings %}
+    <tr>
+      <td>{{ b.service.name }}</td>
+      <td>{{ b.date }}</td>
+      <td>{{ b.time }}</td>
+      <td>{{ b.get_status_display }}</td>
+      <td>{{ b.is_paid }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="5">No bookings found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\bookings\templates\bookings\payment_success.html
+========================================
+{% extends 'base.html' %} {% block content %}
+<h2>Payment Successful</h2>
+<p>Your booking is confirmed.</p>
+<p><strong>Service:</strong> {{ booking.service.name }}</p>
+<p>
+  <strong>Date:</strong> {{ booking.date }} | <strong>Time:</strong> {{
+  booking.time }}
+</p>
+<p><strong>Status:</strong> {{ booking.get_status_display }}</p>
+<a class="btn btn-primary" href="{% url 'my_bookings' %}">My Bookings</a>
+{% endblock %}
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\maherlite\asgi.py
+========================================
+"""
+ASGI config for maherlite project.
+
+It exposes the ASGI callable as a module-level variable named ``application``.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/5.2/howto/deployment/asgi/
+"""
+
+import os
+
+from django.core.asgi import get_asgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'maherlite.settings')
+
+application = get_asgi_application()
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\maherlite\settings.py
+========================================
+"""
+Django settings for maherlite project.
+"""
+
+from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Load environment variables
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv()
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-@!$x73w!(iz1*r0luy^lyg_ihic5v082e!)dcnm_#@7$)p_7aj'
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+ALLOWED_HOSTS = []
+
+
+# Application definition
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    # Our apps
+    'services',
+    'bookings',
+    'users',
+]
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+ROOT_URLCONF = 'maherlite.urls'
+
+
+# ? FIXED: Added templates directory path so base.html can be found
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR / "templates"],  # ?? important line added
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'maherlite.wsgi.application'
+
+
+# Database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+
+# Password validation
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+
+# Internationalization
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
+
+
+# ? Static & Media Files Configuration
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# ? Stripe API Keys (from .env)
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
+
+
+# Default Auto Field
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\maherlite\urls.py
+========================================
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from django.views.generic import TemplateView
+
+urlpatterns = [
+    # Admin panel
+    path('admin/', admin.site.urls),
+
+    # Home page (static template view)
+    path('', TemplateView.as_view(template_name='home.html'), name='home'),
+
+    # Include app routes
+    path('services/', include('services.urls')),
+    path('bookings/', include('bookings.urls')),
+    path('users/', include('users.urls')),
+]
+
+# Media file serving (for development)
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\maherlite\wsgi.py
+========================================
+"""
+WSGI config for maherlite project.
+
+It exposes the WSGI callable as a module-level variable named ``application``.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/
+"""
+
+import os
+
+from django.core.wsgi import get_wsgi_application
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'maherlite.settings')
+
+application = get_wsgi_application()
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\maherlite\__init__.py
+========================================
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\services\admin.py
+========================================
+from django.contrib import admin
+from .models import Service
+admin.site.register(Service)
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\services\apps.py
+========================================
+from django.apps import AppConfig
+
+
+class ServicesConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'services'
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\services\forms.py
+========================================
+from django import forms
+from .models import Service
+
+class ServiceForm(forms.ModelForm):
+    class Meta:
+        model = Service
+        fields = ['name', 'category', 'description', 'price', 'image']
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\services\models.py
+========================================
+from django.db import models
+
+class Service(models.Model):
+    name = models.CharField(max_length=100)
+    category = models.CharField(max_length=100)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    image = models.ImageField(upload_to='services/', blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\services\tests.py
+========================================
+from django.test import TestCase
+
+# Create your tests here.
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\services\urls.py
+========================================
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.service_list, name='service_list'),
+    path('<int:pk>/', views.service_detail, name='service_detail'),
+    path('add/', views.service_create, name='service_create'),
+]
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\services\views.py
+========================================
+import os
+import sys
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Service
+from .forms import ServiceForm
+
+# ?? Ensure the current directory is added to sys.path
+# (helps VS Code/Pylance resolve local imports correctly)
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from .models import Service
+from .forms import ServiceForm
+
+
+def service_list(request):
+    services = Service.objects.all()
+    return render(request, 'services/service_list.html', {'services': services})
+
+
+def service_detail(request, pk):
+    service = get_object_or_404(Service, pk=pk)
+    return render(request, 'services/service_detail.html', {'service': service})
+
+
+@login_required
+def service_create(request):
+    if request.method == 'POST':
+        form = ServiceForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('service_list')
+    else:
+        form = ServiceForm()
+    return render(request, 'services/service_form.html', {'form': form})
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\services\__init__.py
+========================================
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\services\templates\services\service_detail.html
+========================================
+{% extends 'base.html' %} {% block content %}
+<h2>{{ service.name }}</h2>
+<p class="text-muted">{{ service.category }}</p>
+{% if service.image %}<img
+  src="{{ service.image.url }}"
+  class="img-fluid mb-3"
+/>{% endif %}
+<p>{{ service.description }}</p>
+<p class="fw-bold">Price: ${{ service.price }}</p>
+
+<form action="/bookings/{{ service.id }}/book/" method="post" class="mt-3">
+  {% csrf_token %}
+  <div class="row g-2">
+    <div class="col-md-4">
+      <label class="form-label">Date</label>
+      <input type="date" name="date" class="form-control" required />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Time</label>
+      <input type="time" name="time" class="form-control" required />
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary mt-3">Book & Pay</button>
+</form>
+{% endblock %}
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\services\templates\services\service_form.html
+========================================
+{% extends 'base.html' %} {% block content %}
+<h2>Add Service</h2>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %} {{ form.as_p }}
+  <button class="btn btn-success" type="submit">Save</button>
+</form>
+{% endblock %}
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\services\templates\services\service_list.html
+========================================
+{% extends 'base.html' %} {% block content %}
+<h2>Services</h2>
+<div class="row">
+  {% for s in services %}
+  <div class="col-md-4 mb-3">
+    <div class="card h-100">
+      {% if s.image %}<img src="{{ s.image.url }}" class="card-img-top" />{%
+      endif %}
+      <div class="card-body">
+        <h5 class="card-title">{{ s.name }}</h5>
+        <p class="card-text">{{ s.description|truncatechars:100 }}</p>
+        <p class="fw-bold">${{ s.price }}</p>
+        <a
+          href="{% url 'service_detail' s.id %}"
+          class="btn btn-outline-primary"
+          >View</a
+        >
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p>No services yet.</p>
+  {% endfor %}
+</div>
+<a href="{% url 'service_create' %}" class="btn btn-success">Add Service</a>
+{% endblock %}
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\static\css\style.css
+========================================
+body {
+  font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+    sans-serif;
+}
+.navbar-brand {
+  color: #00a8a8 !important;
+  font-weight: 600;
+}
+.btn-primary,
+.btn-outline-primary {
+  background-color: #00a8a8;
+  border-color: #00a8a8;
+}
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\templates\base.html
+========================================
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}MahirLite{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+      <div class="container">
+        <a class="navbar-brand" href="/">MahirLite</a>
+        <div>
+          <a href="/services/" class="btn btn-outline-light btn-sm">Services</a>
+          <a href="/bookings/" class="btn btn-outline-light btn-sm">Bookings</a>
+          <a href="/users/login/" class="btn btn-outline-light btn-sm">Login</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container">{% block content %} {% endblock %}</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\templates\home.html
+========================================
+{% extends 'base.html' %} {% block content %}
+<div class="text-center py-5">
+  <h1 class="mb-3">Welcome to MahirLite</h1>
+  <p class="lead">Book trusted home services instantly.</p>
+  <a href="/services/" class="btn btn-primary">Explore Services</a>
+</div>
+{% endblock %}
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\admin.py
+========================================
+from django.contrib import admin
+
+# Register your models here.
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\apps.py
+========================================
+from django.apps import AppConfig
+
+
+class UsersConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'users'
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\forms.py
+========================================
+from django import forms
+from .models import Service
+
+class ServiceForm(forms.ModelForm):
+    class Meta:
+        model = Service
+        fields = ['name', 'category', 'description', 'price', 'image']
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\models.py
+========================================
+from django.db import models
+
+# Create your models here.
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\tests.py
+========================================
+from django.test import TestCase
+
+# Create your tests here.
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\urls.py
+========================================
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('signup/', views.signup_view, name='signup'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+]
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\views.py
+========================================
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+
+def signup_view(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = UserCreationForm()
+    return render(request, 'users/signup.html', {'form': form})
+
+def login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('home')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'users/login.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    return redirect('home')
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\__init__.py
+========================================
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\templates\users\login.html
+========================================
+{% extends 'base.html' %} {% block content %}
+<h2>Login</h2>
+<form method="post">
+  {% csrf_token %} {{ form.as_p }}
+  <button class="btn btn-primary" type="submit">Login</button>
+</form>
+{% endblock %}
+
+
+
+========================================
+FILE: C:\D Drive Files\BSIT-B-F23\5th Semester\Advanced Web (Python Based)\Zulqarnain\MaherLite\users\templates\users\signup.html
+========================================
+{% extends 'base.html' %} {% block content %}
+<h2>Sign Up</h2>
+<form method="post">
+  {% csrf_token %} {{ form.as_p }}
+  <button class="btn btn-primary" type="submit">Create account</button>
+</form>
+{% endblock %}
+
+
+

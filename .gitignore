@@ -1,0 +1,78 @@
+# =============================================
+# MAHERLITE PROJECT .gitignore
+# =============================================
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ---- Environment / Virtual Envs ----
+.env
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ---- Django / Databases ----
+db.sqlite3
+*.sqlite3
+
+# ---- Logs ----
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+*.sql
+*.bak
+
+# ---- IDE / Editor ----
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ---- OS Files ----
+.DS_Store
+Thumbs.db
+
+# ---- Node / Frontend ----
+node_modules/
+build/
+dist/
+package-lock.json
+
+# ---- Static / Media Uploads ----
+media/
+staticfiles/
+
+# ---- Django Migrations Cache ----
+*/migrations/__pycache__/
+*/migrations/*.py[cod]
+
+# ---- Backup / Dump Files ----
+*.dump
+*.bak
+*.zip
+*.tar
+*.tar.gz
+
+# ---- Coverage / Testing ----
+.coverage
+.pytest_cache/
+htmlcov/
+.tox/
+.nox/
+.coverage.*
+.cache
+pytestdebug.log
+
+# ---- VSCode Settings ----
+.vscode/
+
+# ---- Local Config Files ----
+*.code-workspace
+*.sqlite
